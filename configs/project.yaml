@@ -1,0 +1,31 @@
+project:
+  name: speechbrain-kaldi-asr-comparison
+  language: en
+  sample_rate: 16000
+  audio_format: wav
+
+data:
+  manifest: data/manifests/asr_manifest.csv
+  kaldi_data_root: data/kaldi
+  splits:
+    train: train
+    valid: valid
+    test: test
+
+speechbrain:
+  pretrained_source: speechbrain/asr-transformer-transformerlm-librispeech
+  output_dir: results/speechbrain
+
+kaldi:
+  kaldi_root: ${KALDI_ROOT}
+  recipe_dir: baselines/kaldi/egs/asr_compare/s5
+  output_dir: results/kaldi
+
+evaluation:
+  text_normalization:
+    lowercase: true
+    remove_punctuation: true
+  metrics:
+    - wer
+    - cer
+

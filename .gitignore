@@ -1,0 +1,14 @@
+.venv/
+__pycache__/
+*.pyc
+
+data/raw/
+data/kaldi/*/
+!data/kaldi/README.md
+
+results/**/*.log
+results/**/*.tmp
+models/
+exp/
+downloads/
+

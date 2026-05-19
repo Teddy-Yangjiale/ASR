@@ -28,17 +28,17 @@ How do traditional ASR and end-to-end ASR differ in recognition accuracy, setup 
 
 ```text
 .
-├── baselines/
-│   ├── kaldi/              # Kaldi recipe notes and runnable skeleton
-│   └── speechbrain/        # SpeechBrain experiment notes
-├── configs/                # Shared experiment configuration
-├── data/
-│   ├── raw/                # Original audio, not committed
-│   ├── manifests/          # CSV/JSONL manifests
-│   └── kaldi/              # Generated Kaldi data dirs
-├── docs/                   # Project goals, experiment plan, report notes
-├── results/                # Metrics, hypotheses, logs
-└── scripts/                # Shared preparation and evaluation utilities
+|-- baselines/
+|   |-- kaldi/              # Kaldi recipe notes and runnable skeleton
+|   `-- speechbrain/        # SpeechBrain experiment notes
+|-- configs/                # Shared experiment configuration
+|-- data/
+|   |-- raw/                # Original audio, not committed
+|   |-- manifests/          # CSV/JSONL manifests
+|   `-- kaldi/              # Generated Kaldi data dirs
+|-- docs/                   # Project goals, experiment plan, report notes
+|-- results/                # Metrics, hypotheses, logs
+`-- scripts/                # Shared preparation and evaluation utilities
 ```
 
 ## First Milestone
@@ -60,6 +60,14 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
+Run the local smoke test without downloading any dataset:
+
+```bash
+make smoke
+```
+
+This generates a tiny synthetic dataset, builds the shared manifest, exports Kaldi data directories, creates sample hypotheses, and computes WER/CER. It verifies the project wiring before connecting real SpeechBrain/Kaldi experiments.
+
 Create a manifest from a transcript file:
 
 ```bash
@@ -80,5 +88,4 @@ python scripts/evaluate_wer.py \
 
 ## Status
 
-Initial project scaffold. The next implementation step is selecting the dataset and wiring the SpeechBrain inference path to produce `results/speechbrain/hypotheses.csv`.
-
+Executable scaffold with local smoke-test utilities. The next implementation step is selecting the real dataset and wiring the SpeechBrain inference path to produce `results/speechbrain/hypotheses.csv`.

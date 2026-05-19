@@ -3,12 +3,13 @@ __pycache__/
 *.pyc
 
 data/raw/
+data/manifests/toy_manifest.csv
 data/kaldi/*/
 !data/kaldi/README.md
 
+results/toy/
 results/**/*.log
 results/**/*.tmp
 models/
 exp/
 downloads/
-

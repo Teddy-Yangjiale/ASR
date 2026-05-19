@@ -29,6 +29,14 @@ def read_transcripts(path: Path) -> list[dict[str, str]]:
     return rows
 
 
+def resolve_wav_path(item: dict[str, str], audio_dir: Path, utt_id: str) -> Path:
+    raw_path = item.get("wav_path", "").strip()
+    if raw_path:
+        wav_path = Path(raw_path)
+        return wav_path if wav_path.is_absolute() else audio_dir / wav_path
+    return audio_dir / f"{utt_id}.wav"
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--audio-dir", required=True, type=Path)
@@ -41,24 +49,26 @@ def main() -> None:
         utt_id = item["utt_id"].strip()
         text = item["text"].strip()
         split = item["split"].strip()
-        wav_path = Path(item.get("wav_path") or args.audio_dir / f"{utt_id}.wav")
-        if not wav_path.is_absolute():
-            wav_path = wav_path
+        wav_path = resolve_wav_path(item, args.audio_dir, utt_id)
         if not wav_path.exists():
             raise FileNotFoundError(f"Missing audio for {utt_id}: {wav_path}")
-        rows.append(
-            {
-                "utt_id": utt_id,
-                "wav_path": str(wav_path),
-                "duration": f"{wav_duration(wav_path):.3f}",
-                "text": text,
-                "split": split,
-            }
-        )
+        output_row = {
+            "utt_id": utt_id,
+            "wav_path": str(wav_path),
+            "duration": f"{wav_duration(wav_path):.3f}",
+            "text": text,
+            "split": split,
+        }
+        if item.get("speaker"):
+            output_row["speaker"] = item["speaker"].strip()
+        rows.append(output_row)
 
     args.output.parent.mkdir(parents=True, exist_ok=True)
+    fieldnames = ["utt_id", "wav_path", "duration", "text", "split"]
+    if any("speaker" in row for row in rows):
+        fieldnames.append("speaker")
     with args.output.open("w", encoding="utf-8", newline="") as f:
-        writer = csv.DictWriter(f, fieldnames=["utt_id", "wav_path", "duration", "text", "split"])
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerows(rows)
 
@@ -67,4 +77,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

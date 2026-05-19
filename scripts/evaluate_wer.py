@@ -47,6 +47,8 @@ def main() -> None:
     parser.add_argument("--refs", required=True, type=Path)
     parser.add_argument("--hyps", required=True, type=Path)
     parser.add_argument("--output", required=True, type=Path)
+    parser.add_argument("--keep-case", action="store_true", help="Disable lowercase normalization.")
+    parser.add_argument("--keep-punctuation", action="store_true", help="Disable punctuation removal.")
     args = parser.parse_args()
 
     refs = load_refs(args.refs)
@@ -62,8 +64,8 @@ def main() -> None:
     examples = []
 
     for utt_id in common_ids:
-        ref = normalize(refs[utt_id])
-        hyp = normalize(hyps[utt_id])
+        ref = normalize(refs[utt_id], lowercase=not args.keep_case, remove_punctuation=not args.keep_punctuation)
+        hyp = normalize(hyps[utt_id], lowercase=not args.keep_case, remove_punctuation=not args.keep_punctuation)
         ref_word_tokens = ref.split()
         hyp_word_tokens = hyp.split()
         word_edits += edit_distance(ref_word_tokens, hyp_word_tokens)
@@ -79,6 +81,10 @@ def main() -> None:
         "extra_hypotheses": sorted(set(hyps) - set(refs)),
         "wer": word_edits / ref_words if ref_words else 0.0,
         "cer": char_edits / ref_chars if ref_chars else 0.0,
+        "normalization": {
+            "lowercase": not args.keep_case,
+            "remove_punctuation": not args.keep_punctuation,
+        },
         "error_examples": examples,
     }
 
@@ -89,4 +95,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

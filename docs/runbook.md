@@ -44,6 +44,7 @@ Score:
 python3 scripts/evaluate_wer.py \
   --refs data/manifests/librispeech_manifest.csv \
   --hyps results/speechbrain/hypotheses.csv \
+  --split test \
   --output results/speechbrain/metrics.json
 ```
 
@@ -67,6 +68,14 @@ python3 scripts/compare_metrics.py \
   --kaldi results/kaldi/metrics.json
 ```
 
+If Kaldi produces plain text hypotheses in `<utt_id> <hypothesis>` format, convert them first:
+
+```bash
+python3 scripts/kaldi_text_to_hypotheses.py \
+  --input exp/decode_test/scoring_kaldi/test_filt.txt \
+  --output results/kaldi/hypotheses.csv
+```
+
 ## 6. Report Minimum Content
 
 The report should include:
@@ -77,3 +86,9 @@ The report should include:
 - setup/runtime notes
 - at least five representative error cases
 - explanation of where the systems differ
+
+Generate a Markdown report draft after both systems have metrics:
+
+```bash
+make report
+```

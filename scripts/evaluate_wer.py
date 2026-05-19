@@ -30,9 +30,14 @@ def edit_distance(ref: list[str], hyp: list[str]) -> int:
     return prev[-1]
 
 
-def load_refs(path: Path) -> dict[str, str]:
+def load_refs(path: Path, split: str | None = None) -> dict[str, str]:
     with path.open("r", encoding="utf-8", newline="") as f:
-        return {row["utt_id"]: row["text"] for row in csv.DictReader(f)}
+        refs = {}
+        for row in csv.DictReader(f):
+            if split and row.get("split") != split:
+                continue
+            refs[row["utt_id"]] = row["text"]
+        return refs
 
 
 def load_hyps(path: Path) -> dict[str, str]:
@@ -47,12 +52,15 @@ def main() -> None:
     parser.add_argument("--refs", required=True, type=Path)
     parser.add_argument("--hyps", required=True, type=Path)
     parser.add_argument("--output", required=True, type=Path)
+    parser.add_argument("--split", default=None, help="Score only one reference split, for example test.")
     parser.add_argument("--keep-case", action="store_true", help="Disable lowercase normalization.")
     parser.add_argument("--keep-punctuation", action="store_true", help="Disable punctuation removal.")
     args = parser.parse_args()
 
-    refs = load_refs(args.refs)
+    refs = load_refs(args.refs, split=args.split)
     hyps = load_hyps(args.hyps)
+    if not refs:
+        raise ValueError(f"No references found in {args.refs} for split={args.split!r}.")
     common_ids = sorted(set(refs) & set(hyps))
     if not common_ids:
         raise ValueError("No matching utt_id values between references and hypotheses.")
@@ -77,6 +85,9 @@ def main() -> None:
 
     metrics = {
         "utterances_scored": len(common_ids),
+        "reference_split": args.split,
+        "references_loaded": len(refs),
+        "hypotheses_loaded": len(hyps),
         "missing_hypotheses": sorted(set(refs) - set(hyps)),
         "extra_hypotheses": sorted(set(hyps) - set(refs)),
         "wer": word_edits / ref_words if ref_words else 0.0,

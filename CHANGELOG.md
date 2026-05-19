@@ -2,6 +2,22 @@
 
 All notable project changes will be recorded in this file.
 
+## 2026-05-20
+
+### Added
+
+- Added `docs/gap_analysis.md` to clarify project goals, current gaps, implementation order, and done criteria.
+- Added `scripts/build_comparison_report.py` and `make report` to generate a report-ready Markdown summary from SpeechBrain and Kaldi metrics.
+- Added `scripts/kaldi_text_to_hypotheses.py` to convert Kaldi text-format decoding output into the shared hypotheses CSV format.
+- Added optional runtime metadata and utterance limiting to `scripts/run_speechbrain_infer.py`.
+
+### Changed
+
+- Updated `scripts/evaluate_wer.py` to support split-specific scoring and report reference/hypothesis counts.
+- Updated `scripts/manifest_to_kaldi.py` to emit FLAC decode pipes in `wav.scp`, which is safer for LibriSpeech-style Kaldi inputs.
+- Updated README, runbook, and Makefile scoring commands to score only the intended `test` split.
+- Updated `.gitignore` to exclude generated comparison result artifacts.
+
 ## 2026-05-19
 
 ### Added

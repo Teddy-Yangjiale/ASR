@@ -91,6 +91,7 @@ Evaluate recognition output:
 python scripts/evaluate_wer.py \
   --refs data/manifests/asr_manifest.csv \
   --hyps results/speechbrain/hypotheses.csv \
+  --split test \
   --output results/speechbrain/metrics.json
 ```
 

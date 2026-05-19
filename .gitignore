@@ -9,6 +9,9 @@ data/kaldi/*/
 !data/kaldi/README.md
 
 results/toy/
+results/speechbrain/
+results/kaldi/
+results/comparison_report.md
 results/**/*.log
 results/**/*.tmp
 models/

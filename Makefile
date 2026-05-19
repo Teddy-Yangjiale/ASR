@@ -1,4 +1,4 @@
-.PHONY: help smoke validate kaldi-data score compare clean-generated
+.PHONY: help smoke validate kaldi-data score compare report clean-generated
 
 MANIFEST := data/manifests/toy_manifest.csv
 TOY_HYPS := results/toy/hypotheses.csv
@@ -12,6 +12,8 @@ help:
 	@echo "  make validate       Validate $(MANIFEST)"
 	@echo "  make kaldi-data     Convert $(MANIFEST) into Kaldi data directories"
 	@echo "  make score          Score toy hypotheses with WER/CER"
+	@echo "  make compare        Compare SpeechBrain and Kaldi metrics"
+	@echo "  make report         Build a Markdown comparison report"
 	@echo "  make librispeech-manifest Build a LibriSpeech manifest from $(LIBRISPEECH_ROOT)"
 	@echo "  make clean-generated Remove generated toy artifacts"
 
@@ -31,6 +33,7 @@ smoke: clean-generated
 	python3 scripts/evaluate_wer.py \
 		--refs $(MANIFEST) \
 		--hyps $(TOY_HYPS) \
+		--split test \
 		--output $(TOY_METRICS)
 
 validate:
@@ -40,12 +43,19 @@ kaldi-data:
 	python3 scripts/manifest_to_kaldi.py --manifest $(MANIFEST) --output-root data/kaldi/toy
 
 score:
-	python3 scripts/evaluate_wer.py --refs $(MANIFEST) --hyps $(TOY_HYPS) --output $(TOY_METRICS)
+	python3 scripts/evaluate_wer.py --refs $(MANIFEST) --hyps $(TOY_HYPS) --split test --output $(TOY_METRICS)
 
 compare:
 	python3 scripts/compare_metrics.py \
 		--speechbrain results/speechbrain/metrics.json \
 		--kaldi results/kaldi/metrics.json
+
+report:
+	python3 scripts/build_comparison_report.py \
+		--speechbrain-metrics results/speechbrain/metrics.json \
+		--kaldi-metrics results/kaldi/metrics.json \
+		--speechbrain-runtime results/speechbrain/runtime.json \
+		--output results/comparison_report.md
 
 librispeech-manifest:
 	python3 scripts/prepare_librispeech_manifest.py \

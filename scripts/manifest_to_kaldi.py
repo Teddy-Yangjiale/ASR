@@ -9,6 +9,14 @@ from collections import defaultdict
 from pathlib import Path
 
 
+def kaldi_wav_command(path: str) -> str:
+    audio_path = Path(path)
+    suffix = audio_path.suffix.lower()
+    if suffix == ".flac":
+        return f"flac -c -d -s {audio_path} |"
+    return str(audio_path)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--manifest", required=True, type=Path)
@@ -32,7 +40,7 @@ def main() -> None:
         for row in sorted(rows, key=lambda r: r["utt_id"]):
             utt_id = row["utt_id"]
             speaker = row.get("speaker") or utt_id.split("-")[0] or "spk1"
-            wav_scp.append(f"{utt_id} {row['wav_path']}\n")
+            wav_scp.append(f"{utt_id} {kaldi_wav_command(row['wav_path'])}\n")
             text.append(f"{utt_id} {row['text']}\n")
             utt2spk.append(f"{utt_id} {speaker}\n")
             speakers[speaker].append(utt_id)
@@ -49,4 +57,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

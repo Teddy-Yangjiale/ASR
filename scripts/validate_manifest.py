@@ -15,20 +15,38 @@ REQUIRED_COLUMNS = {"utt_id", "wav_path", "duration", "text", "split"}
 SUPPORTED_SPLITS = {"train", "valid", "dev", "test"}
 
 
-def validate_wav(path: Path, expected_sample_rate: int) -> list[str]:
+def validate_audio(path: Path, expected_sample_rate: int) -> list[str]:
     errors = []
     if not path.exists():
-        return [f"missing wav: {path}"]
-    try:
-        with wave.open(str(path), "rb") as wav:
-            if wav.getnchannels() != 1:
-                errors.append(f"{path}: expected mono audio, got {wav.getnchannels()} channels")
-            if wav.getframerate() != expected_sample_rate:
-                errors.append(f"{path}: expected {expected_sample_rate} Hz, got {wav.getframerate()} Hz")
-            if wav.getnframes() == 0:
-                errors.append(f"{path}: empty wav file")
-    except wave.Error as exc:
-        errors.append(f"{path}: invalid wav file ({exc})")
+        return [f"missing audio: {path}"]
+
+    if path.suffix.lower() == ".wav":
+        try:
+            with wave.open(str(path), "rb") as wav:
+                channels = wav.getnchannels()
+                sample_rate = wav.getframerate()
+                frames = wav.getnframes()
+        except wave.Error as exc:
+            return [f"{path}: invalid wav file ({exc})"]
+    else:
+        try:
+            import soundfile as sf
+        except ImportError as exc:
+            return [f"{path}: install soundfile to validate non-WAV audio ({exc})"]
+        try:
+            info = sf.info(str(path))
+        except RuntimeError as exc:
+            return [f"{path}: invalid audio file ({exc})"]
+        channels = info.channels
+        sample_rate = info.samplerate
+        frames = info.frames
+
+    if channels != 1:
+        errors.append(f"{path}: expected mono audio, got {channels} channels")
+    if sample_rate != expected_sample_rate:
+        errors.append(f"{path}: expected {expected_sample_rate} Hz, got {sample_rate} Hz")
+    if frames == 0:
+        errors.append(f"{path}: empty audio file")
     return errors
 
 
@@ -65,7 +83,7 @@ def main() -> None:
             if split not in SUPPORTED_SPLITS:
                 errors.append(f"line {line_no}: unsupported split '{split}' for {utt_id}")
             split_counts[split] += 1
-            errors.extend(f"line {line_no}: {err}" for err in validate_wav(wav_path, args.sample_rate))
+            errors.extend(f"line {line_no}: {err}" for err in validate_audio(wav_path, args.sample_rate))
 
     if errors:
         print("Manifest validation failed:", file=sys.stderr)

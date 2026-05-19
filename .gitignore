@@ -4,6 +4,7 @@ __pycache__/
 
 data/raw/
 data/manifests/toy_manifest.csv
+data/manifests/librispeech_manifest.csv
 data/kaldi/*/
 !data/kaldi/README.md
 

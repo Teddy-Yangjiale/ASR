@@ -9,9 +9,18 @@ import wave
 from pathlib import Path
 
 
-def wav_duration(path: Path) -> float:
-    with wave.open(str(path), "rb") as wav:
-        return wav.getnframes() / float(wav.getframerate())
+def audio_duration(path: Path) -> float:
+    if path.suffix.lower() == ".wav":
+        with wave.open(str(path), "rb") as wav:
+            return wav.getnframes() / float(wav.getframerate())
+
+    try:
+        import soundfile as sf
+    except ImportError as exc:
+        raise RuntimeError(f"Install soundfile to read duration for non-WAV audio: {path}") from exc
+
+    info = sf.info(str(path))
+    return info.frames / float(info.samplerate)
 
 
 def read_transcripts(path: Path) -> list[dict[str, str]]:
@@ -53,12 +62,12 @@ def main() -> None:
         if not wav_path.exists():
             raise FileNotFoundError(f"Missing audio for {utt_id}: {wav_path}")
         output_row = {
-            "utt_id": utt_id,
-            "wav_path": str(wav_path),
-            "duration": f"{wav_duration(wav_path):.3f}",
-            "text": text,
-            "split": split,
-        }
+                "utt_id": utt_id,
+                "wav_path": str(wav_path),
+                "duration": f"{audio_duration(wav_path):.3f}",
+                "text": text,
+                "split": split,
+            }
         if item.get("speaker"):
             output_row["speaker"] = item["speaker"].strip()
         rows.append(output_row)

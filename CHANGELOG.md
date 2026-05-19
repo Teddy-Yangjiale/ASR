@@ -6,6 +6,21 @@ All notable project changes will be recorded in this file.
 
 ### Added
 
+- Added `scripts/prepare_librispeech_manifest.py` for LibriSpeech-style datasets.
+- Added `docs/dataset_guide.md` with the recommended dataset path and manifest workflow.
+- Added `docs/runbook.md` with the intended end-to-end experiment command order.
+- Added `make librispeech-manifest` to generate and validate a LibriSpeech manifest.
+
+### Changed
+
+- Extended manifest preparation and validation to handle FLAC or WAV audio through `soundfile`.
+- Updated `README.md` to point to the LibriSpeech workflow.
+- Updated `.gitignore` to exclude generated LibriSpeech manifests.
+
+## 2026-05-19
+
+### Added
+
 - Added a `Makefile` with local smoke-test, validation, Kaldi export, scoring, comparison, and cleanup targets.
 - Added `scripts/generate_toy_dataset.py` to create a tiny synthetic dataset for pipeline smoke tests.
 - Added `scripts/validate_manifest.py` to check manifest schema, duplicate utterance ids, split names, audio existence, sample rate, channel count, and empty WAV files.

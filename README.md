@@ -68,6 +68,14 @@ make smoke
 
 This generates a tiny synthetic dataset, builds the shared manifest, exports Kaldi data directories, creates sample hypotheses, and computes WER/CER. It verifies the project wiring before connecting real SpeechBrain/Kaldi experiments.
 
+For a real LibriSpeech-style dataset, create and validate a manifest:
+
+```bash
+make librispeech-manifest
+```
+
+See `docs/dataset_guide.md` and `docs/runbook.md` for the full experiment flow.
+
 Create a manifest from a transcript file:
 
 ```bash
@@ -88,4 +96,4 @@ python scripts/evaluate_wer.py \
 
 ## Status
 
-Executable scaffold with local smoke-test utilities. The next implementation step is selecting the real dataset and wiring the SpeechBrain inference path to produce `results/speechbrain/hypotheses.csv`.
+Executable scaffold with local smoke-test utilities and LibriSpeech manifest support. The next implementation step is running the SpeechBrain baseline on a real test split and exporting the Kaldi baseline hypotheses.

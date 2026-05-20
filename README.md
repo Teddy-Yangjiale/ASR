@@ -1,112 +1,310 @@
 # SpeechBrain + Kaldi ASR Comparison
 
-This project compares a modern end-to-end ASR pipeline built with SpeechBrain against a traditional Kaldi ASR baseline on the same speech data.
+This repository builds a reproducible automatic speech recognition (ASR) comparison pipeline. It compares a modern end-to-end recognizer built with SpeechBrain against a traditional Kaldi-style ASR baseline, using the same dataset, the same transcript references, and the same WER/CER evaluation scripts.
 
 ## Project Goal
 
-Build a non-overlapping follow-up to previous audio analysis/training work by focusing on a complete automatic speech recognition pipeline:
+The goal is to move beyond generic audio analysis or audio classification and build a complete speech-to-text experiment workflow.
 
-- data preparation for speech-to-text experiments
-- transcription manifests and Kaldi data directories
-- SpeechBrain inference/fine-tuning path
-- Kaldi baseline path
-- unified WER/CER evaluation
-- error analysis across clean/noisy speech
+The project is designed to answer:
 
-## Research Question
+> Given the same speech data and scoring rules, how do SpeechBrain end-to-end ASR and Kaldi traditional ASR differ in accuracy, setup complexity, runtime behavior, and recognition errors?
 
-How do traditional ASR and end-to-end ASR differ in recognition accuracy, setup complexity, inference behavior, and noise robustness on a small controlled dataset?
+The expected final outputs are:
 
-## Planned Comparison
+- SpeechBrain hypotheses and metrics.
+- Kaldi hypotheses and metrics.
+- A shared WER/CER comparison.
+- Runtime metadata where available.
+- Representative recognition error examples.
+- A report-ready Markdown summary.
 
-| Track | Toolkit | Modeling style | Main output |
-| --- | --- | --- | --- |
-| SpeechBrain | SpeechBrain | end-to-end pretrained ASR or fine-tuning | hypotheses + WER/CER |
-| Kaldi | Kaldi | feature extraction + acoustic model + decoding | hypotheses + WER/CER |
+## Tools Used
+
+| Tool | Role in this project |
+| --- | --- |
+| SpeechBrain | Runs the end-to-end pretrained ASR baseline. |
+| Kaldi | Provides the traditional ASR baseline path and data directory format. |
+| LibriSpeech | Starter real-world English ASR dataset. |
+| Hugging Face / hf-mirror | Source for SpeechBrain pretrained model files. |
+| Python | Data preparation, manifest conversion, evaluation, and reporting scripts. |
+| Make | One-command workflow entry points. |
+
+## How It Works
+
+The pipeline uses one shared manifest as the center of the experiment.
+
+```text
+LibriSpeech or custom audio
+        |
+        v
+shared manifest CSV
+        |
+        |-- SpeechBrain inference --> results/speechbrain/hypotheses.csv
+        |
+        `-- Kaldi data export -----> data/kaldi/<split>/
+                                      |
+                                      `-- Kaldi decoding --> results/kaldi/hypotheses.csv
+
+shared evaluator:
+  hypotheses.csv + manifest.csv --> metrics.json
+```
+
+The shared manifest contains:
+
+```csv
+utt_id,wav_path,duration,text,split,speaker
+```
+
+Both ASR systems must use the same `test` split and the same reference text. This keeps the comparison fair.
 
 ## Repository Layout
 
 ```text
 .
 |-- baselines/
-|   |-- kaldi/              # Kaldi recipe notes and runnable skeleton
-|   `-- speechbrain/        # SpeechBrain experiment notes
-|-- configs/                # Shared experiment configuration
+|   |-- kaldi/              # Kaldi baseline notes and recipe skeleton
+|   `-- speechbrain/        # SpeechBrain baseline notes
+|-- configs/                # Shared project configuration
 |-- data/
-|   |-- raw/                # Original audio, not committed
-|   |-- manifests/          # CSV/JSONL manifests
-|   `-- kaldi/              # Generated Kaldi data dirs
-|-- docs/                   # Project goals, experiment plan, report notes
-|-- results/                # Metrics, hypotheses, logs
-`-- scripts/                # Shared preparation and evaluation utilities
+|   |-- raw/                # Downloaded or original audio, ignored by Git
+|   |-- manifests/          # Generated manifest CSV files
+|   `-- kaldi/              # Generated Kaldi data directories
+|-- docs/                   # Setup, runbook, dataset guide, and gap analysis
+|-- models/                 # Downloaded SpeechBrain model cache, ignored by Git
+|-- results/                # Hypotheses, metrics, runtime, reports, ignored by Git
+|-- scripts/                # Data, inference, evaluation, and reporting utilities
+|-- Makefile                # Main workflow commands
+`-- requirements.txt        # Python dependencies
 ```
 
-## First Milestone
+## Current Status
 
-1. Choose a small dataset: LibriSpeech dev-clean subset, Common Voice subset, or self-recorded command/short-sentence data.
-2. Normalize all audio to 16 kHz mono WAV.
-3. Create one shared manifest with `utt_id`, `wav_path`, `duration`, `text`, and `split`.
-4. Run SpeechBrain pretrained ASR as the first working recognizer.
-5. Prepare equivalent Kaldi data directories.
-6. Evaluate both tracks with the same WER/CER script.
+Implemented:
+
+- Local toy smoke test.
+- LibriSpeech `dev-clean` / `test-clean` download workflow.
+- LibriSpeech manifest generation and validation.
+- SpeechBrain pretrained model download helpers.
+- SpeechBrain inference script with runtime metadata.
+- Kaldi data directory export.
+- Kaldi text hypothesis to CSV converter.
+- Shared WER/CER evaluator.
+- Markdown comparison report generator.
+
+Still in progress:
+
+- Full Kaldi training/decoding recipe.
+- Final SpeechBrain vs Kaldi result table.
+- Noise robustness experiment.
 
 ## Quick Start
 
-Create a Python environment and install the lightweight utilities:
+Run commands from WSL Ubuntu:
 
 ```bash
-python -m venv .venv
+cd ~/ASR
 source .venv/bin/activate
-pip install -r requirements.txt
 ```
 
-The full setup checklist is in `docs/setup.md`. Commands that require you to download data or install system packages are listed in `docs/user_actions.md`.
+Install Python dependencies:
 
-Run the local smoke test without downloading any dataset:
+```bash
+make install-python-deps
+```
+
+Check the environment:
+
+```bash
+make env-check
+```
+
+Run the local smoke test. This does not require external data or pretrained models:
 
 ```bash
 make smoke
 ```
 
-This generates a tiny synthetic dataset, builds the shared manifest, exports Kaldi data directories, creates sample hypotheses, and computes WER/CER. It verifies the project wiring before connecting real SpeechBrain/Kaldi experiments.
+## Real Data Workflow
 
-For a real LibriSpeech-style dataset, create and validate a manifest:
+Download the small LibriSpeech starter set:
 
 ```bash
 make download-librispeech-small
+```
+
+Generate and validate the shared manifest:
+
+```bash
 make librispeech-manifest
 ```
 
-See `docs/dataset_guide.md` and `docs/runbook.md` for the full experiment flow.
+This creates:
 
-Run the first SpeechBrain baseline on a small test subset:
+```text
+data/manifests/librispeech_manifest.csv
+```
+
+## SpeechBrain Baseline
+
+First check Hugging Face or mirror connectivity:
 
 ```bash
+export HF_ENDPOINT=https://hf-mirror.com
 make hf-check
+```
+
+Download the SpeechBrain model files directly:
+
+```bash
 make cache-speechbrain-model-direct
+```
+
+Validate the local checkpoint files:
+
+```bash
 make validate-speechbrain-model
-make speechbrain-smoke
 ```
 
-Create a manifest from a transcript file:
+Run a small 20-utterance SpeechBrain test from the local cache:
 
 ```bash
-python scripts/prepare_manifest.py \
-  --audio-dir data/raw/wav \
-  --transcripts data/raw/transcripts.tsv \
-  --output data/manifests/asr_manifest.csv
+USE_LOCAL_CACHE=1 make speechbrain-smoke
 ```
 
-Evaluate recognition output:
+Run the full LibriSpeech `test-clean` split after the smoke run works:
 
 ```bash
-python scripts/evaluate_wer.py \
-  --refs data/manifests/asr_manifest.csv \
+USE_LOCAL_CACHE=1 make speechbrain-test
+```
+
+SpeechBrain outputs:
+
+```text
+results/speechbrain/hypotheses.csv
+results/speechbrain/metrics.json
+results/speechbrain/runtime.json
+```
+
+## Kaldi Baseline
+
+Export the shared manifest into Kaldi data directories:
+
+```bash
+python3 scripts/manifest_to_kaldi.py \
+  --manifest data/manifests/librispeech_manifest.csv \
+  --output-root data/kaldi/librispeech
+```
+
+Expected Kaldi files per split:
+
+```text
+wav.scp
+text
+utt2spk
+spk2utt
+```
+
+If Kaldi decoding produces text output in this format:
+
+```text
+utt_id recognized words
+```
+
+convert it to the shared CSV format:
+
+```bash
+python3 scripts/kaldi_text_to_hypotheses.py \
+  --input exp/decode_test/scoring_kaldi/test_filt.txt \
+  --output results/kaldi/hypotheses.csv
+```
+
+Score Kaldi with the same evaluator:
+
+```bash
+python3 scripts/evaluate_wer.py \
+  --refs data/manifests/librispeech_manifest.csv \
+  --hyps results/kaldi/hypotheses.csv \
+  --split test \
+  --output results/kaldi/metrics.json
+```
+
+## Evaluation
+
+The evaluator reports:
+
+- WER: word error rate.
+- CER: character error rate.
+- missing or extra hypotheses.
+- representative error examples.
+- text normalization settings.
+
+Example:
+
+```bash
+python3 scripts/evaluate_wer.py \
+  --refs data/manifests/librispeech_manifest.csv \
   --hyps results/speechbrain/hypotheses.csv \
   --split test \
   --output results/speechbrain/metrics.json
 ```
 
-## Status
+Generate a Markdown comparison report after both systems have metrics:
 
-Executable scaffold with local smoke-test utilities and LibriSpeech manifest support. The next implementation step is running the SpeechBrain baseline on a real test split and exporting the Kaldi baseline hypotheses.
+```bash
+make report
+```
+
+Output:
+
+```text
+results/comparison_report.md
+```
+
+## Common Issue: `asr.ckpt` Stalls or Is Corrupt
+
+If model download stalls at `asr.ckpt: 0%`, use the direct downloader:
+
+```bash
+export HF_ENDPOINT=https://hf-mirror.com
+make cache-speechbrain-model-direct
+make validate-speechbrain-model
+```
+
+If validation says `asr.ckpt` is invalid, delete it and re-download:
+
+```bash
+rm models/speechbrain_pretrained/asr.ckpt
+make cache-speechbrain-model-direct
+make validate-speechbrain-model
+```
+
+Then run:
+
+```bash
+USE_LOCAL_CACHE=1 make speechbrain-smoke
+```
+
+## Useful Commands
+
+```bash
+make help
+make smoke
+make env-check
+make download-librispeech-small
+make librispeech-manifest
+make cache-speechbrain-model-direct
+make validate-speechbrain-model
+USE_LOCAL_CACHE=1 make speechbrain-smoke
+USE_LOCAL_CACHE=1 make speechbrain-test
+make report
+```
+
+## Documentation
+
+- `docs/setup.md`: environment setup.
+- `docs/user_actions.md`: commands that require local downloads or system packages.
+- `docs/dataset_guide.md`: dataset and manifest workflow.
+- `docs/runbook.md`: end-to-end experiment order.
+- `docs/gap_analysis.md`: current strengths, gaps, and done criteria.
+- `docs/project_goals.md`: project positioning and deliverables.

@@ -24,6 +24,7 @@ All notable project changes will be recorded in this file.
 
 ### Changed
 
+- Rewrote `README.md` as a clearer project overview with goals, tools, architecture, workflows, outputs, and troubleshooting.
 - Improved direct SpeechBrain model downloading to compare existing files with remote `Content-Length`, retry incomplete downloads, and refuse to promote partial `.part` files.
 - Updated docs to recommend the direct HTTP model download fallback when `asr.ckpt` stalls at 0%.
 - Reworked `scripts/cache_speechbrain_model.py` to use `huggingface_hub.snapshot_download` directly, making stalled `asr.ckpt` downloads easier to diagnose and resume.

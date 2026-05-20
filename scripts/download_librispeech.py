@@ -17,6 +17,10 @@ KNOWN_SPLITS = {
 }
 
 
+def expected_split_dir(extract_root: Path, split: str) -> Path:
+    return extract_root / "LibriSpeech" / split
+
+
 def download(url: str, output: Path, force: bool) -> None:
     if output.exists() and not force:
         print(f"Archive already exists, skipping: {output}")
@@ -38,7 +42,12 @@ def safe_members(tar: tarfile.TarFile, output_root: Path) -> list[tarfile.TarInf
     return members
 
 
-def extract(archive: Path, output_root: Path) -> None:
+def extract(archive: Path, output_root: Path, split: str, force: bool) -> None:
+    split_dir = expected_split_dir(output_root, split)
+    if split_dir.exists() and not force:
+        print(f"Split already extracted, skipping: {split_dir}")
+        return
+
     print(f"Extracting {archive} to {output_root}")
     output_root.mkdir(parents=True, exist_ok=True)
     with tarfile.open(archive, "r:gz") as tar:
@@ -60,7 +69,7 @@ def main() -> None:
         archive = args.download_root / filename
         download(f"{BASE_URL}/{filename}", archive, args.force)
         if not args.no_extract:
-            extract(archive, args.extract_root)
+            extract(archive, args.extract_root, split, args.force)
 
     print("Done.")
     print(f"Expected LibriSpeech root: {args.extract_root / 'LibriSpeech'}")

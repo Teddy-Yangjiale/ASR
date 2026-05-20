@@ -82,7 +82,8 @@ See `docs/dataset_guide.md` and `docs/runbook.md` for the full experiment flow.
 Run the first SpeechBrain baseline on a small test subset:
 
 ```bash
-LIMIT=20 make speechbrain-test
+make hf-check
+make speechbrain-smoke
 ```
 
 Create a manifest from a transcript file:

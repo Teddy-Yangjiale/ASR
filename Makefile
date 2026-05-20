@@ -1,4 +1,4 @@
-.PHONY: help install-python-deps env-check smoke validate kaldi-data score compare report download-librispeech-small librispeech-manifest speechbrain-test clean-generated
+.PHONY: help install-python-deps env-check hf-check cache-speechbrain-model smoke validate kaldi-data score compare report download-librispeech-small librispeech-manifest speechbrain-smoke speechbrain-test clean-generated
 
 MANIFEST := data/manifests/toy_manifest.csv
 TOY_HYPS := results/toy/hypotheses.csv
@@ -10,6 +10,8 @@ help:
 	@echo "Available targets:"
 	@echo "  make install-python-deps Install Python dependencies from requirements.txt"
 	@echo "  make env-check      Check local Python and optional ASR dependencies"
+	@echo "  make hf-check       Check Hugging Face connectivity for the SpeechBrain model"
+	@echo "  make cache-speechbrain-model Download/cache the SpeechBrain pretrained model"
 	@echo "  make smoke          Generate toy data and run the full local utility pipeline"
 	@echo "  make validate       Validate $(MANIFEST)"
 	@echo "  make kaldi-data     Convert $(MANIFEST) into Kaldi data directories"
@@ -18,7 +20,8 @@ help:
 	@echo "  make report         Build a Markdown comparison report"
 	@echo "  make download-librispeech-small Download dev-clean and test-clean"
 	@echo "  make librispeech-manifest Build a LibriSpeech manifest from $(LIBRISPEECH_ROOT)"
-	@echo "  make speechbrain-test Run SpeechBrain on the LibriSpeech test split"
+	@echo "  make speechbrain-smoke Run SpeechBrain on LIMIT test utterances, default LIMIT=20"
+	@echo "  make speechbrain-test Run SpeechBrain on the full LibriSpeech test split"
 	@echo "  make clean-generated Remove generated toy artifacts"
 
 env-check:
@@ -26,6 +29,12 @@ env-check:
 
 install-python-deps:
 	python3 -m pip install -r requirements.txt
+
+hf-check:
+	python3 scripts/check_huggingface.py
+
+cache-speechbrain-model:
+	python3 scripts/cache_speechbrain_model.py
 
 smoke: clean-generated
 	python3 scripts/generate_toy_dataset.py \
@@ -80,6 +89,23 @@ librispeech-manifest:
 		--output $(LIBRISPEECH_MANIFEST)
 	python3 scripts/validate_manifest.py --manifest $(LIBRISPEECH_MANIFEST)
 
+speechbrain-smoke:
+	python3 scripts/check_environment.py \
+		--manifest $(LIBRISPEECH_MANIFEST) \
+		--require-speechbrain
+	python3 scripts/check_huggingface.py
+	python3 scripts/run_speechbrain_infer.py \
+		--manifest $(LIBRISPEECH_MANIFEST) \
+		--split test \
+		--limit $${LIMIT:-20} \
+		--output results/speechbrain/hypotheses.csv \
+		--metadata-output results/speechbrain/runtime.json
+	python3 scripts/evaluate_wer.py \
+		--refs $(LIBRISPEECH_MANIFEST) \
+		--hyps results/speechbrain/hypotheses.csv \
+		--split test \
+		--output results/speechbrain/metrics.json
+
 speechbrain-test:
 	python3 scripts/check_environment.py \
 		--manifest $(LIBRISPEECH_MANIFEST) \
@@ -87,7 +113,6 @@ speechbrain-test:
 	python3 scripts/run_speechbrain_infer.py \
 		--manifest $(LIBRISPEECH_MANIFEST) \
 		--split test \
-		--limit $${LIMIT:-20} \
 		--output results/speechbrain/hypotheses.csv \
 		--metadata-output results/speechbrain/runtime.json
 	python3 scripts/evaluate_wer.py \

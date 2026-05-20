@@ -6,6 +6,8 @@ All notable project changes will be recorded in this file.
 
 ### Added
 
+- Added `scripts/check_huggingface.py` and `make hf-check` to diagnose Hugging Face connectivity before SpeechBrain inference.
+- Added `scripts/cache_speechbrain_model.py` and `make cache-speechbrain-model` to pre-cache the SpeechBrain pretrained model.
 - Added `scripts/check_environment.py` and `make env-check` for dependency checks before real experiments.
 - Added `scripts/download_librispeech.py` and `make download-librispeech-small` for downloading LibriSpeech `dev-clean` and `test-clean`.
 - Added `make speechbrain-test` to run SpeechBrain inference and scoring on the LibriSpeech test split.
@@ -18,6 +20,9 @@ All notable project changes will be recorded in this file.
 
 ### Changed
 
+- Split SpeechBrain execution into `make speechbrain-smoke` for limited test runs and `make speechbrain-test` for the full test split.
+- Updated `scripts/download_librispeech.py` to skip already extracted LibriSpeech splits unless forced.
+- Improved SpeechBrain model load errors with actionable Hugging Face/cache troubleshooting guidance.
 - Updated `scripts/evaluate_wer.py` to support split-specific scoring and report reference/hypothesis counts.
 - Updated `scripts/manifest_to_kaldi.py` to emit FLAC decode pipes in `wav.scp`, which is safer for LibriSpeech-style Kaldi inputs.
 - Updated README, runbook, and Makefile scoring commands to score only the intended `test` split.

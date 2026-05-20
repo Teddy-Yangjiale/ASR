@@ -23,7 +23,16 @@ def main() -> None:
 
     from speechbrain.inference.ASR import EncoderDecoderASR
 
-    asr_model = EncoderDecoderASR.from_hparams(source=args.source, savedir=args.savedir)
+    try:
+        asr_model = EncoderDecoderASR.from_hparams(source=args.source, savedir=args.savedir)
+    except Exception as exc:
+        raise SystemExit(
+            "Failed to load the SpeechBrain pretrained model. "
+            "If this is the first run, SpeechBrain must download model files from Hugging Face. "
+            "Run `make hf-check` to test connectivity, `make cache-speechbrain-model` to pre-cache the model, "
+            "or configure WSL proxy/VPN/HF_ENDPOINT. "
+            f"Original error: {type(exc).__name__}: {exc}"
+        ) from exc
 
     rows = []
     total_audio_seconds = 0.0

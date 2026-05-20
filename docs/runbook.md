@@ -9,6 +9,7 @@ Commands that require local downloads or system packages are also summarized in 
 ```bash
 make install-python-deps
 make env-check
+make hf-check
 make smoke
 ```
 
@@ -73,10 +74,14 @@ python3 scripts/evaluate_wer.py \
 Or use:
 
 ```bash
-LIMIT=20 make speechbrain-test
+make speechbrain-smoke
 ```
 
-Remove `LIMIT=20` after the small run is working.
+Run the full test split after the small run is working:
+
+```bash
+make speechbrain-test
+```
 
 ## 5. Prepare Kaldi Inputs
 

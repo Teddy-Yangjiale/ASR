@@ -30,6 +30,14 @@ Check the environment:
 make env-check
 ```
 
+Check whether WSL can reach Hugging Face for the SpeechBrain model:
+
+```bash
+make hf-check
+```
+
+If this fails with a network error, fix WSL networking/proxy/VPN first or set `HF_ENDPOINT` to a reachable Hugging Face mirror.
+
 ## Required Data Download
 
 Download the small LibriSpeech starter set:
@@ -62,7 +70,7 @@ make librispeech-manifest
 Run a small SpeechBrain test first:
 
 ```bash
-LIMIT=20 make speechbrain-test
+make speechbrain-smoke
 ```
 
 If that works, run the full test split:
@@ -81,3 +89,15 @@ After you run the real-data commands, I can inspect:
 - `results/speechbrain/runtime.json`
 
 Then I can continue with the Kaldi baseline and the comparison report.
+
+## Your Current Log
+
+Your `make librispeech-manifest` run succeeded and produced 5323 utterances, so LibriSpeech is already usable. The earlier `make download-librispeech-small` failure happened while re-extracting files that were already present. The downloader now skips already extracted splits unless `--force` is used.
+
+Your SpeechBrain run failed because Hugging Face was unreachable from WSL. Run:
+
+```bash
+make hf-check
+```
+
+before running SpeechBrain again.

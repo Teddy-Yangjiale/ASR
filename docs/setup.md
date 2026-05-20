@@ -40,9 +40,10 @@ Before running SpeechBrain on LibriSpeech:
 
 ```bash
 make env-check
+make hf-check
 make download-librispeech-small
 make librispeech-manifest
-LIMIT=20 make speechbrain-test
+make speechbrain-smoke
 ```
 
 See `docs/user_actions.md` for the exact commands that require local downloads or system package installation.
@@ -50,5 +51,6 @@ See `docs/user_actions.md` for the exact commands that require local downloads o
 ## Notes
 
 - `make env-check` requires `soundfile`, `speechbrain`, `torch`, and `torchaudio`.
+- `make hf-check` confirms the SpeechBrain model metadata is reachable before inference starts.
 - `flac` is marked as a warning because SpeechBrain can still run without Kaldi, but Kaldi FLAC decoding needs it.
 - Kaldi itself is not installed by this repository. Set `KALDI_ROOT` before running Kaldi-specific recipe work.

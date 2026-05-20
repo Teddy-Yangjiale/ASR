@@ -1,4 +1,4 @@
-.PHONY: help install-python-deps env-check hf-check cache-speechbrain-model smoke validate kaldi-data score compare report download-librispeech-small librispeech-manifest speechbrain-smoke speechbrain-test clean-generated
+.PHONY: help install-python-deps env-check hf-check cache-speechbrain-model cache-speechbrain-model-direct smoke validate kaldi-data score compare report download-librispeech-small librispeech-manifest speechbrain-smoke speechbrain-test clean-generated
 
 MANIFEST := data/manifests/toy_manifest.csv
 TOY_HYPS := results/toy/hypotheses.csv
@@ -12,6 +12,7 @@ help:
 	@echo "  make env-check      Check local Python and optional ASR dependencies"
 	@echo "  make hf-check       Check Hugging Face connectivity for the SpeechBrain model"
 	@echo "  make cache-speechbrain-model Download/cache the SpeechBrain pretrained model"
+	@echo "  make cache-speechbrain-model-direct Direct HTTP fallback for SpeechBrain model files"
 	@echo "  make smoke          Generate toy data and run the full local utility pipeline"
 	@echo "  make validate       Validate $(MANIFEST)"
 	@echo "  make kaldi-data     Convert $(MANIFEST) into Kaldi data directories"
@@ -38,6 +39,9 @@ cache-speechbrain-model:
 
 cache-speechbrain-model-local-check:
 	python3 scripts/cache_speechbrain_model.py --local-files-only
+
+cache-speechbrain-model-direct:
+	python3 scripts/direct_download_speechbrain_model.py
 
 smoke: clean-generated
 	python3 scripts/generate_toy_dataset.py \

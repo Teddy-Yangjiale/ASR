@@ -10,7 +10,7 @@ Commands that require local downloads or system packages are also summarized in 
 make install-python-deps
 make env-check
 make hf-check
-make cache-speechbrain-model
+make cache-speechbrain-model-direct
 make smoke
 ```
 

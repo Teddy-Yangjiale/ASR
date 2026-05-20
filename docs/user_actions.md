@@ -43,7 +43,7 @@ If model download stalls at `asr.ckpt: 0%`, stop it with `Ctrl+C` and try:
 ```bash
 export HF_ENDPOINT=https://hf-mirror.com
 make hf-check
-make cache-speechbrain-model
+make cache-speechbrain-model-direct
 ```
 
 After the model is cached, run inference from the local cache:

@@ -52,6 +52,6 @@ See `docs/user_actions.md` for the exact commands that require local downloads o
 
 - `make env-check` requires `soundfile`, `speechbrain`, `torch`, and `torchaudio`.
 - `make hf-check` confirms the SpeechBrain model metadata is reachable before inference starts.
-- If `asr.ckpt` stalls at 0%, cache the model first with `make cache-speechbrain-model`; use `HF_ENDPOINT=https://hf-mirror.com` if Hugging Face is unreachable from WSL.
+- If `asr.ckpt` stalls at 0%, cache the model with `make cache-speechbrain-model-direct`; use `HF_ENDPOINT=https://hf-mirror.com` if Hugging Face is unreachable from WSL.
 - `flac` is marked as a warning because SpeechBrain can still run without Kaldi, but Kaldi FLAC decoding needs it.
 - Kaldi itself is not installed by this repository. Set `KALDI_ROOT` before running Kaldi-specific recipe work.

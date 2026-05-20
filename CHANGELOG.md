@@ -6,6 +6,7 @@ All notable project changes will be recorded in this file.
 
 ### Added
 
+- Added `scripts/direct_download_speechbrain_model.py` and `make cache-speechbrain-model-direct` to bypass Hugging Face Hub client issues when direct model-file URLs are reachable.
 - Added local-cache support for SpeechBrain inference through `USE_LOCAL_CACHE=1`.
 - Added `cache-speechbrain-model-local-check` to verify an existing local model cache without network access.
 - Added `scripts/check_huggingface.py` and `make hf-check` to diagnose Hugging Face connectivity before SpeechBrain inference.
@@ -22,6 +23,7 @@ All notable project changes will be recorded in this file.
 
 ### Changed
 
+- Updated docs to recommend the direct HTTP model download fallback when `asr.ckpt` stalls at 0%.
 - Reworked `scripts/cache_speechbrain_model.py` to use `huggingface_hub.snapshot_download` directly, making stalled `asr.ckpt` downloads easier to diagnose and resume.
 - Documented the `asr.ckpt: 0%` stall workaround with `HF_ENDPOINT` and explicit model caching.
 - Split SpeechBrain execution into `make speechbrain-smoke` for limited test runs and `make speechbrain-test` for the full test split.

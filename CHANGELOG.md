@@ -6,6 +6,11 @@ All notable project changes will be recorded in this file.
 
 ### Added
 
+- Added `scripts/check_environment.py` and `make env-check` for dependency checks before real experiments.
+- Added `scripts/download_librispeech.py` and `make download-librispeech-small` for downloading LibriSpeech `dev-clean` and `test-clean`.
+- Added `make speechbrain-test` to run SpeechBrain inference and scoring on the LibriSpeech test split.
+- Added `make install-python-deps` and `docs/setup.md` for reproducible local dependency setup.
+- Added `docs/user_actions.md` to separate user-required downloads, package installs, and long-running commands from repository automation.
 - Added `docs/gap_analysis.md` to clarify project goals, current gaps, implementation order, and done criteria.
 - Added `scripts/build_comparison_report.py` and `make report` to generate a report-ready Markdown summary from SpeechBrain and Kaldi metrics.
 - Added `scripts/kaldi_text_to_hypotheses.py` to convert Kaldi text-format decoding output into the shared hypotheses CSV format.
@@ -17,6 +22,9 @@ All notable project changes will be recorded in this file.
 - Updated `scripts/manifest_to_kaldi.py` to emit FLAC decode pipes in `wav.scp`, which is safer for LibriSpeech-style Kaldi inputs.
 - Updated README, runbook, and Makefile scoring commands to score only the intended `test` split.
 - Updated `.gitignore` to exclude generated comparison result artifacts.
+- Updated runbook and gap analysis with the real-data download and SpeechBrain baseline flow.
+- Documented the required Python packages and Ubuntu `flac` package for LibriSpeech/Kaldi work.
+- Hardened LibriSpeech archive extraction to reject tar members that escape the target extraction directory.
 
 ## 2026-05-19
 

@@ -60,6 +60,8 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
+The full setup checklist is in `docs/setup.md`. Commands that require you to download data or install system packages are listed in `docs/user_actions.md`.
+
 Run the local smoke test without downloading any dataset:
 
 ```bash
@@ -71,10 +73,17 @@ This generates a tiny synthetic dataset, builds the shared manifest, exports Kal
 For a real LibriSpeech-style dataset, create and validate a manifest:
 
 ```bash
+make download-librispeech-small
 make librispeech-manifest
 ```
 
 See `docs/dataset_guide.md` and `docs/runbook.md` for the full experiment flow.
+
+Run the first SpeechBrain baseline on a small test subset:
+
+```bash
+LIMIT=20 make speechbrain-test
+```
 
 Create a manifest from a transcript file:
 

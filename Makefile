@@ -36,6 +36,9 @@ hf-check:
 cache-speechbrain-model:
 	python3 scripts/cache_speechbrain_model.py
 
+cache-speechbrain-model-local-check:
+	python3 scripts/cache_speechbrain_model.py --local-files-only
+
 smoke: clean-generated
 	python3 scripts/generate_toy_dataset.py \
 		--audio-dir data/raw/toy_wav \
@@ -98,6 +101,7 @@ speechbrain-smoke:
 		--manifest $(LIBRISPEECH_MANIFEST) \
 		--split test \
 		--limit $${LIMIT:-20} \
+		$${USE_LOCAL_CACHE:+--use-local-cache} \
 		--output results/speechbrain/hypotheses.csv \
 		--metadata-output results/speechbrain/runtime.json
 	python3 scripts/evaluate_wer.py \
@@ -113,6 +117,7 @@ speechbrain-test:
 	python3 scripts/run_speechbrain_infer.py \
 		--manifest $(LIBRISPEECH_MANIFEST) \
 		--split test \
+		$${USE_LOCAL_CACHE:+--use-local-cache} \
 		--output results/speechbrain/hypotheses.csv \
 		--metadata-output results/speechbrain/runtime.json
 	python3 scripts/evaluate_wer.py \

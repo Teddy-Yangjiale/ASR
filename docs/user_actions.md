@@ -38,6 +38,20 @@ make hf-check
 
 If this fails with a network error, fix WSL networking/proxy/VPN first or set `HF_ENDPOINT` to a reachable Hugging Face mirror.
 
+If model download stalls at `asr.ckpt: 0%`, stop it with `Ctrl+C` and try:
+
+```bash
+export HF_ENDPOINT=https://hf-mirror.com
+make hf-check
+make cache-speechbrain-model
+```
+
+After the model is cached, run inference from the local cache:
+
+```bash
+USE_LOCAL_CACHE=1 make speechbrain-smoke
+```
+
 ## Required Data Download
 
 Download the small LibriSpeech starter set:

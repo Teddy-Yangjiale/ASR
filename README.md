@@ -83,6 +83,7 @@ Run the first SpeechBrain baseline on a small test subset:
 
 ```bash
 make hf-check
+make cache-speechbrain-model
 make speechbrain-smoke
 ```
 

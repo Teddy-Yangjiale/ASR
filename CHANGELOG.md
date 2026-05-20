@@ -6,6 +6,8 @@ All notable project changes will be recorded in this file.
 
 ### Added
 
+- Added local-cache support for SpeechBrain inference through `USE_LOCAL_CACHE=1`.
+- Added `cache-speechbrain-model-local-check` to verify an existing local model cache without network access.
 - Added `scripts/check_huggingface.py` and `make hf-check` to diagnose Hugging Face connectivity before SpeechBrain inference.
 - Added `scripts/cache_speechbrain_model.py` and `make cache-speechbrain-model` to pre-cache the SpeechBrain pretrained model.
 - Added `scripts/check_environment.py` and `make env-check` for dependency checks before real experiments.
@@ -20,6 +22,8 @@ All notable project changes will be recorded in this file.
 
 ### Changed
 
+- Reworked `scripts/cache_speechbrain_model.py` to use `huggingface_hub.snapshot_download` directly, making stalled `asr.ckpt` downloads easier to diagnose and resume.
+- Documented the `asr.ckpt: 0%` stall workaround with `HF_ENDPOINT` and explicit model caching.
 - Split SpeechBrain execution into `make speechbrain-smoke` for limited test runs and `make speechbrain-test` for the full test split.
 - Updated `scripts/download_librispeech.py` to skip already extracted LibriSpeech splits unless forced.
 - Improved SpeechBrain model load errors with actionable Hugging Face/cache troubleshooting guidance.

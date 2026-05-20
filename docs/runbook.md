@@ -10,6 +10,7 @@ Commands that require local downloads or system packages are also summarized in 
 make install-python-deps
 make env-check
 make hf-check
+make cache-speechbrain-model
 make smoke
 ```
 
@@ -81,6 +82,12 @@ Run the full test split after the small run is working:
 
 ```bash
 make speechbrain-test
+```
+
+If the model has already been cached and you want to avoid any Hugging Face access during inference:
+
+```bash
+USE_LOCAL_CACHE=1 make speechbrain-smoke
 ```
 
 ## 5. Prepare Kaldi Inputs

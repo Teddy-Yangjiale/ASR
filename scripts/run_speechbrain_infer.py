@@ -17,6 +17,11 @@ def main() -> None:
     parser.add_argument("--output", required=True, type=Path)
     parser.add_argument("--source", default="speechbrain/asr-transformer-transformerlm-librispeech")
     parser.add_argument("--savedir", default="models/speechbrain_pretrained")
+    parser.add_argument(
+        "--use-local-cache",
+        action="store_true",
+        help="Use --savedir as the SpeechBrain source. Run make cache-speechbrain-model first.",
+    )
     parser.add_argument("--limit", type=int, default=None, help="Optional utterance limit for smoke runs.")
     parser.add_argument("--metadata-output", type=Path, default=None, help="Optional JSON runtime metadata output.")
     args = parser.parse_args()
@@ -24,13 +29,14 @@ def main() -> None:
     from speechbrain.inference.ASR import EncoderDecoderASR
 
     try:
-        asr_model = EncoderDecoderASR.from_hparams(source=args.source, savedir=args.savedir)
+        source = args.savedir if args.use_local_cache else args.source
+        asr_model = EncoderDecoderASR.from_hparams(source=source, savedir=args.savedir)
     except Exception as exc:
         raise SystemExit(
             "Failed to load the SpeechBrain pretrained model. "
             "If this is the first run, SpeechBrain must download model files from Hugging Face. "
             "Run `make hf-check` to test connectivity, `make cache-speechbrain-model` to pre-cache the model, "
-            "or configure WSL proxy/VPN/HF_ENDPOINT. "
+            "or configure WSL proxy/VPN/HF_ENDPOINT. If the model is already cached, pass `--use-local-cache`. "
             f"Original error: {type(exc).__name__}: {exc}"
         ) from exc
 

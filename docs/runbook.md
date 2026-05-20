@@ -11,6 +11,7 @@ make install-python-deps
 make env-check
 make hf-check
 make cache-speechbrain-model-direct
+make validate-speechbrain-model
 make smoke
 ```
 

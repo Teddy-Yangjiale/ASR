@@ -44,12 +44,21 @@ If model download stalls at `asr.ckpt: 0%`, stop it with `Ctrl+C` and try:
 export HF_ENDPOINT=https://hf-mirror.com
 make hf-check
 make cache-speechbrain-model-direct
+make validate-speechbrain-model
 ```
 
 After the model is cached, run inference from the local cache:
 
 ```bash
 USE_LOCAL_CACHE=1 make speechbrain-smoke
+```
+
+If validation reports `asr.ckpt` is invalid, delete that file and rerun the direct downloader:
+
+```bash
+rm models/speechbrain_pretrained/asr.ckpt
+make cache-speechbrain-model-direct
+make validate-speechbrain-model
 ```
 
 ## Required Data Download
